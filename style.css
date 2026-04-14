@@ -91,3 +91,6 @@ section{
 .filled{
     background-color: var(--text-fill);
 }
+.food{
+    background-color: red;
+}

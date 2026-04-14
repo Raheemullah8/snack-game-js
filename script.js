@@ -12,8 +12,11 @@ const snake = [{ x: 1, y: 3 },];
 let intervalId = null;
 let direction = "right";
 
+
 const totalCol = Math.floor(board.clientWidth / borderWidth);
 const totalRow = Math.floor(board.clientHeight / borderHeight);
+
+let food = {x: Math.floor(Math.random().totalRow), y: Math.floor(Math.random().totalCol)};
 
 board.style.gridTemplateColumns = `repeat(${totalCol}, ${borderWidth}px)`;
 board.style.gridTemplateRows = `repeat(${totalRow}, ${borderHeight}px)`;
