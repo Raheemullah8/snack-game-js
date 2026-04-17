@@ -7,16 +7,21 @@ if (!board) {
 const borderWidth = 50;
 const borderHeight = 50;
 
+const totalCol = Math.floor(board.clientWidth / borderWidth);
+const totalRow = Math.floor(board.clientHeight / borderHeight);
+
 const blocks = {};
 const snake = [{ x: 1, y: 3 },];
 let intervalId = null;
 let direction = "right";
 
 
-const totalCol = Math.floor(board.clientWidth / borderWidth);
-const totalRow = Math.floor(board.clientHeight / borderHeight);
 
-let food = {x: Math.floor(Math.random().totalRow), y: Math.floor(Math.random().totalCol)};
+
+let food = {
+    x: Math.floor(Math.random() * totalRow),
+    y: Math.floor(Math.random() * totalCol),
+};
 
 board.style.gridTemplateColumns = `repeat(${totalCol}, ${borderWidth}px)`;
 board.style.gridTemplateRows = `repeat(${totalRow}, ${borderHeight}px)`;
@@ -32,7 +37,7 @@ for (let row = 0; row < totalRow; row++) {
         let block = document.createElement("div");
         block.classList.add("block");
         board.appendChild(block);
-        block.innerHTML = `${row}-${col}`;
+         block.innerHTML = `${row}-${col}`;
         blocks[`${row}-${col}`] = block;
 
     }
@@ -40,14 +45,17 @@ for (let row = 0; row < totalRow; row++) {
 
 const render = () =>{
      snake?.forEach(element => {
-        blocks[`${element.x}-${element.y}`].classList.add("filled");        
+        blocks[`${element.x}-${element.y}`].classList.add("filled");          
     });
-}
 
-
-intervalId = setInterval(()=>{
- let head = null;
-
+    let head = null;
+    const foodBlock = blocks[`${food.x}-${food.y}`];
+    if (foodBlock) {
+        foodBlock.classList.add("food");
+    }
+   
+    
+ 
  if(direction === "left"){
     head = {x: snake[0].x, y: snake[0].y - 1};
  }else if(direction === "right"){
@@ -63,6 +71,19 @@ intervalId = setInterval(()=>{
     clearInterval(intervalId);
    
  }
+ if(head.x == food.x && head.y == food.y){
+     blocks[`${food.x}-${food.y}`].classList.remove("food");
+
+     food = {
+        x: Math.floor(Math.random() * totalRow),
+        y: Math.floor(Math.random() * totalCol),
+     };
+     blocks[`${food.x}-${food.y}`].classList.add("food");
+     snake.unshift(head);
+    
+     }
+
+    
 
 
   snake?.forEach(element => {
@@ -70,6 +91,16 @@ intervalId = setInterval(()=>{
     });
  snake.unshift(head);
  snake.pop();
+ snake.forEach(element =>{
+    blocks[`${element.x}-${element.y}`].classList.add("filled");
+ }) 
+
+
+}
+
+
+intervalId = setInterval(()=>{
+ 
 render();
 },400);
 
@@ -87,10 +118,3 @@ addEventListener("keydown",(e)=>{
     }
 })
 
-
-
-
-
-
-
-console.log("total-col", totalCol, "total-row", totalRow);
