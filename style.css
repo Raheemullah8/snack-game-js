@@ -94,3 +94,47 @@ section{
 .food{
     background-color: red;
 }
+
+.modal{
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #6463636e;
+    backdrop-filter: blur(4px);
+}
+
+.modal .start-game{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-l);
+
+}
+ .modal .game-over{
+     display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-l);
+   
+ }
+
+.btn{
+    padding: var(--spacing-s) var(--spacing-m);
+    border-radius: var(--border-radius-md);
+    border: none;
+    background-color: var(--text-fill);
+    color: var(--bg-color);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.btn:hover{
+  transform: scale(1.1);
+    
+   
+}

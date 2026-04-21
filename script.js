@@ -1,4 +1,17 @@
 const board = document.querySelector(".borders");
+const startBtn = document.querySelector(".btn-start");
+const modal = document.querySelector(".modal");
+const reStartBtn = document.querySelector(".btn-restart");
+const gameOverModal = document.querySelector(".game-over");
+const startGame = document.querySelector(".start-game");
+
+const highScore = document.querySelector("#high-score");
+const score = document.querySelector("#score");
+const time = document.querySelector("#time");
+
+let currentScore = 0;
+let currentTimeInSeconds = 0;
+let highScoreValue = 0;
 
 if (!board) {
 	throw new Error("Board element not found");
@@ -11,9 +24,63 @@ const totalCol = Math.floor(board.clientWidth / borderWidth);
 const totalRow = Math.floor(board.clientHeight / borderHeight);
 
 const blocks = {};
-const snake = [{ x: 1, y: 3 },];
+let snake = [{ x: 1, y: 3 },];
 let intervalId = null;
+let timeIntervalId = null;
 let direction = "right";
+
+const parseScoreValue = (value) => {
+    if (!value) {
+        return 0;
+    }
+    const normalizedValue = String(value).replace(/,/g, "").trim();
+    const parsedValue = Number(normalizedValue);
+    return Number.isFinite(parsedValue) ? parsedValue : 0;
+};
+
+const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
+
+const syncHud = () => {
+    if (score) {
+        score.textContent = String(currentScore);
+    }
+    if (time) {
+        time.textContent = formatTime(currentTimeInSeconds);
+    }
+    if (highScore) {
+        highScore.textContent = String(highScoreValue);
+    }
+};
+
+const stopGameLoops = () => {
+    clearInterval(intervalId);
+    clearInterval(timeIntervalId);
+    intervalId = null;
+    timeIntervalId = null;
+};
+
+const startGameLoops = () => {
+    stopGameLoops();
+    intervalId = setInterval(() => {
+        render();
+    }, 400);
+    timeIntervalId = setInterval(() => {
+        currentTimeInSeconds += 1;
+        if (time) {
+            time.textContent = formatTime(currentTimeInSeconds);
+        }
+    }, 1000);
+};
+
+const highScoreFromStorage = localStorage.getItem("highScore");
+const highScoreFromLegacyStorage = localStorage.getItem("high-score");
+highScoreValue = parseScoreValue(highScoreFromStorage || highScoreFromLegacyStorage);
+syncHud();
+
 
 
 
@@ -37,7 +104,7 @@ for (let row = 0; row < totalRow; row++) {
         let block = document.createElement("div");
         block.classList.add("block");
         board.appendChild(block);
-         block.innerHTML = `${row}-${col}`;
+        
         blocks[`${row}-${col}`] = block;
 
     }
@@ -67,9 +134,14 @@ const render = () =>{
  }
 
  if(head.x < 0 || head.x >= totalRow || head.y <0 || head.y >= totalCol){
-    alert("Game Over");
-    clearInterval(intervalId);
+  
+     stopGameLoops();
+      modal.style.display = "flex";
    
+   startGame.style.display = "none";
+    gameOverModal.style.display = "flex";
+     return;
+  
  }
  if(head.x == food.x && head.y == food.y){
      blocks[`${food.x}-${food.y}`].classList.remove("food");
@@ -79,6 +151,20 @@ const render = () =>{
         y: Math.floor(Math.random() * totalCol),
      };
      blocks[`${food.x}-${food.y}`].classList.add("food");
+
+        currentScore += 10;
+        if (score) {
+            score.textContent = String(currentScore);
+        }
+        if(currentScore > highScoreValue){
+            highScoreValue = currentScore;
+            localStorage.setItem("highScore", String(highScoreValue));
+            localStorage.setItem("high-score", String(highScoreValue));
+            if (highScore) {
+                highScore.textContent = String(highScoreValue);
+            }
+        }
+
      snake.unshift(head);
     
      }
@@ -99,10 +185,42 @@ const render = () =>{
 }
 
 
-intervalId = setInterval(()=>{
+// intervalId = setInterval(()=>{
  
-render();
-},400);
+// render();
+// },400);
+
+if (startBtn) {
+    startBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+        startGameLoops();
+    });
+}
+
+reStartBtn.addEventListener("click",(e)=>{
+stopGameLoops();
+blocks[`${food.x}-${food.y}`].classList.remove("food");
+snake.forEach(element =>{
+    blocks[`${element.x}-${element.y}`].classList.remove("filled");
+})
+
+currentScore = 0;
+currentTimeInSeconds = 0;
+syncHud();
+
+modal.style.display = "none";
+gameOverModal.style.display = "none";
+direction = "down";
+snake = [{ x: 1, y: 3 }];
+food = {
+    x: Math.floor(Math.random() * totalRow),
+    y: Math.floor(Math.random() * totalCol),
+};
+startGameLoops();
+    
+})
+
+
 
 addEventListener("keydown",(e)=>{
     if(e.key === "ArrowLeft"){
@@ -117,4 +235,6 @@ addEventListener("keydown",(e)=>{
         direction = "up";
     }
 })
+
+
 
